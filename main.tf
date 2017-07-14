@@ -35,8 +35,7 @@ data "aws_subnet_ids" "selected" {
 
 # Get the host zone id
 data "aws_route53_zone" "selected" {
-  name         = "${var.dns_zone}."
-  private_zone = false
+  name = "${var.dns_zone}."
 }
 
 ## Security Group for the ELB
@@ -45,7 +44,7 @@ resource "aws_security_group" "sg" {
   description = "The security group for ELB on service: ${var.name}, environment: ${var.environment}"
   vpc_id      = "${data.aws_vpc.selected.id}"
 
-  tags = "${merge(var.tags, map("Name", format("%s", var.name)), map("Env", format("%s", var.environment)))}"
+  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment)) )}"
 }
 
 # Ingress HTTP Port
@@ -90,7 +89,7 @@ resource "aws_security_group_rule" "out_https" {
 
 # The ELB we are creating
 resource "aws_elb" "elb" {
-  name            = "${var.name}"
+  name            = "${var.environment}-${var.name}"
   internal        = "${var.internal}"
   subnets         = [ "${length(var.subnets) > 0 ? var.subnets : data.aws_subnet_ids.selected.ids}" ]
   security_groups = [ "${aws_security_group.sg.id}" ]
@@ -122,7 +121,7 @@ resource "aws_elb" "elb" {
   cross_zone_load_balancing   = "${var.cross_zone}"
   idle_timeout                = "${var.idle_timeout}"
 
-  tags = "${merge(var.tags, map("Name", format("%s", var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment))}"
+  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment))}"
 }
 
 # Enable Proxy Protocol in the nodes ports if required
