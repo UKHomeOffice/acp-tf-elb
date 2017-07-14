@@ -47,7 +47,7 @@ resource "aws_security_group" "sg" {
   description = "The security group for ELB on service: ${var.name}, environment: ${var.environment}"
   vpc_id      = "${data.aws_vpc.selected.id}"
 
-  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
+  tags = "${merge(var.tags, map("Name", format("%s-%s-elb", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
 }
 
 # Ingress HTTP Port
