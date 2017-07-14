@@ -89,7 +89,7 @@ resource "aws_security_group_rule" "out_https" {
   cidr_blocks              = [ "0.0.0.0/0" ]
 }
 
-# The ELB we are creating
+## The ELB we are creating
 resource "aws_elb" "elb" {
   name            = "${var.environment}-${var.name}"
   internal        = "${var.internal}"
@@ -123,17 +123,17 @@ resource "aws_elb" "elb" {
   cross_zone_load_balancing   = "${var.cross_zone}"
   idle_timeout                = "${var.idle_timeout}"
 
-  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment))}"
+  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment)))}"
 }
 
-# Enable Proxy Protocol in the nodes ports if required
+## Enable Proxy Protocol in the nodes ports if required
 resource "aws_proxy_protocol_policy" "proxy_protocol" {
   count          = "${var.proxy_protocol ? 1 : 0}"
   load_balancer  = "${aws_elb.elb.name}"
   instance_ports = [ "${var.http_node_port}", "${var.https_node_port}" ]
 }
 
-## Create a DNS entry for this ELB
+# Create a DNS entry for this ELB
 resource "aws_route53_record" "dns" {
   zone_id = "${data.aws_route53_zone.selected.zone_id}"
   name    = "${var.dns_name == "" ? var.name : var.dns_name}"
