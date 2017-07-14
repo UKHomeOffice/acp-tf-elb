@@ -3,6 +3,7 @@
  *
  *      module "github.com/UKHomeOffice/acp-tf-elb" {
  *        name            = "my_elb_name"
+ *        environment     = "dev"            # by default both Name and Env is added to the tags
  *        dns_name        = "site"           # or defaults to var.name
  *        dns_zone        = "example.com"
  *        tags            = {
@@ -143,4 +144,3 @@ resource "aws_route53_record" "dns" {
     evaluate_target_health = true
   }
 }
-
