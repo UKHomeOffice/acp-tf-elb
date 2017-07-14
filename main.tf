@@ -1,7 +1,9 @@
 /**
  * Module usage:
  *
- *      module "github.com/UKHomeOffice/acp-tf-elb" {
+ *      module "fake_elb"" {
+ *        source         = "git::https://github.com/UKHomeOffice/acp-tf-elb?ref=master"
+ *
  *        name            = "my_elb_name"
  *        environment     = "dev"            # by default both Name and Env is added to the tags
  *        dns_name        = "site"           # or defaults to var.name
@@ -44,7 +46,7 @@ resource "aws_security_group" "sg" {
   description = "The security group for ELB on service: ${var.name}, environment: ${var.environment}"
   vpc_id      = "${data.aws_vpc.selected.id}"
 
-  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment)) )}"
+  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment)))}"
 }
 
 # Ingress HTTP Port
@@ -121,7 +123,7 @@ resource "aws_elb" "elb" {
   cross_zone_load_balancing   = "${var.cross_zone}"
   idle_timeout                = "${var.idle_timeout}"
 
-  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment))}"
+  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment)))}"
 }
 
 # Enable Proxy Protocol in the nodes ports if required

@@ -1,6 +1,8 @@
 Module usage:
 
-     module "github.com/UKHomeOffice/acp-tf-elb" {
+     module "fake_elb"" {
+       source         = "git::https://github.com/UKHomeOffice/acp-tf-elb?ref=master"
+
        name            = "my_elb_name"
        environment     = "dev"            # by default both Name and Env is added to the tags
        dns_name        = "site"           # or defaults to var.name
