@@ -114,7 +114,7 @@ resource "aws_elb" "elb" {
     healthy_threshold   = "${var.health_check_threshold}"
     unhealthy_threshold = "${var.health_check_unhealthy}"
     timeout             = "${var.health_check_timeout}"
-    target              = "TCP:${var.health_check_port}"
+    target              = "TCP:${var.health_check_port == "" ? var.https_node_port : var.health_check_port}"
     interval            = "${var.health_check_interval}"
   }
 
@@ -123,7 +123,7 @@ resource "aws_elb" "elb" {
   cross_zone_load_balancing   = "${var.cross_zone}"
   idle_timeout                = "${var.idle_timeout}"
 
-  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment)))}"
+  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment))}"
 }
 
 # Enable Proxy Protocol in the nodes ports if required

@@ -19,6 +19,11 @@ variable "https_node_port" {
   description = "The https node port the ELB should be forwarding to"
 }
 
+variable "health_check_port" {
+  description = "The node port we should use on the health check, defaults to var.https_node_port"
+  default     = ""
+}
+
 variable "dns_name" {
   description = "An optional hostname to add to the hosting zone, otherwise defaults to var.name"
   default     =  ""
@@ -108,4 +113,3 @@ variable "health_check_timeout" {
   description = "The timeout placed on the health checks"
   default     = "10"
 }
-

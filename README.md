@@ -31,6 +31,7 @@ Module usage:
 | elb_subnet_tag | The role tag applied to the subnets used for ELB, i.e. Role = elb-subnet | string | `elb-subnets` | no |
 | environment | An envionment name for the ELB, i.e. prod, dev, ci etc and used to search for assets | string | - | yes |
 | health_check_interval | The interval between health checks | string | `30` | no |
+| health_check_port | The node port we should use on the health check, defaults to var.https_node_port | string | `` | no |
 | health_check_threshold | The threshold for health checks marked healthy | string | `2` | no |
 | health_check_timeout | The timeout placed on the health checks | string | `10` | no |
 | health_check_unhealthy | The threshold of failed checks before marked unhealthy | string | `3` | no |
