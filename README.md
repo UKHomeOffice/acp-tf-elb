@@ -2,6 +2,7 @@ Module usage:
 
      module "github.com/UKHomeOffice/acp-tf-elb" {
        name            = "my_elb_name"
+       environment     = "dev"            # by default both Name and Env is added to the tags
        dns_name        = "site"           # or defaults to var.name
        dns_zone        = "example.com"
        tags            = {
@@ -23,7 +24,7 @@ Module usage:
 | connection_draining | Whether the ELB should drain connections | string | `true` | no |
 | connection_draining_timeout | The timeout for draining connections from the ELB | string | `120` | no |
 | cross_zone | Should the ELB create be cross zone load balancing | string | `true` | no |
-| dns_name | An optional hostname to add to the hosting zone i.e. artifactory, gitlab | string | - | yes |
+| dns_name | An optional hostname to add to the hosting zone, otherwise defaults to var.name | string | `` | no |
 | dns_zone | The AWS route53 domain name hosting the dns entry, i.e. example.com | string | - | yes |
 | elb_subnet_tag | The role tag applied to the subnets used for ELB, i.e. Role = elb-subnet | string | `elb-subnets` | no |
 | environment | An envionment name for the ELB, i.e. prod, dev, ci etc and used to search for assets | string | - | yes |
@@ -41,7 +42,7 @@ Module usage:
 | proxy_protocol | Indicates if proxy protocol should be enabled on node ports, defaults to false | string | `false` | no |
 | security_groups | An optional list of security groups added to the created ELB | string | `<list>` | no |
 | subnets | An optional list of subnets to create the ELB on, otherwise defaults to ELB subnets | string | `<list>` | no |
-| tags | A map of tags which will be added to the ELB cloud tags | string | `<map>` | no |
+| tags | A map of tags which will be added to the ELB cloud tags, by default Name, Env and KubernetesCluster is added | string | `<map>` | no |
 
 ## Outputs
 

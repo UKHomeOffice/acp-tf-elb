@@ -1,3 +1,4 @@
+
 variable "name" {
   description = "A descriptive name for this ELB"
 }
@@ -19,7 +20,7 @@ variable "https_node_port" {
 }
 
 variable "dns_name" {
-  description = "An optional hostname to add to the hosting zone i.e. artifactory, gitlab"
+  description = "An optional hostname to add to the hosting zone, otherwise defaults to var.name"
   default     =  ""
 }
 
@@ -49,7 +50,7 @@ variable "cidr_access" {
 }
 
 variable "tags" {
-  description = "A map of tags which will be added to the ELB cloud tags"
+  description = "A map of tags which will be added to the ELB cloud tags, by default Name, Env and KubernetesCluster is added"
   default     = {}
 }
 

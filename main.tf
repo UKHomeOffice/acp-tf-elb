@@ -122,7 +122,7 @@ resource "aws_elb" "elb" {
   cross_zone_load_balancing   = "${var.cross_zone}"
   idle_timeout                = "${var.idle_timeout}"
 
-  tags = "${merge(var.tags, map("Name", format("%s", var.name)), map("Env", format("%s", var.environment)))}"
+  tags = "${merge(var.tags, map("Name", format("%s", var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment))}"
 }
 
 # Enable Proxy Protocol in the nodes ports if required
