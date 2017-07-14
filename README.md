@@ -10,6 +10,10 @@ Module usage:
        tags            = {
          Role = "some_tag"
        }
+       # A series of tags applied to filter out the source subnets, by default Env and Role = elb-subnet is used
+       subnet_tags {
+         Role = "some_tag"
+       }
        cidr_access     = [ "1.0.0.1/32" ] # defaults to 0.0.0.0/0
        http_node_port  = "30204"
        https_node_port = "30205"
@@ -44,7 +48,7 @@ Module usage:
 | name | A descriptive name for this ELB | string | - | yes |
 | proxy_protocol | Indicates if proxy protocol should be enabled on node ports, defaults to false | string | `false` | no |
 | security_groups | An optional list of security groups added to the created ELB | string | `<list>` | no |
-| subnets | An optional list of subnets to create the ELB on, otherwise defaults to ELB subnets | string | `<list>` | no |
+| subnet_tags | A map of tags used to filter the subnets you want the ELB attached | string | `<map>` | no |
 | tags | A map of tags which will be added to the ELB cloud tags, by default Name, Env and KubernetesCluster is added | string | `<map>` | no |
 
 ## Outputs

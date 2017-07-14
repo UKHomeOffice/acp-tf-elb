@@ -34,9 +34,9 @@ variable "elb_subnet_tag" {
   default     = "elb-subnets"
 }
 
-variable "subnets" {
-  description = "An optional list of subnets to create the ELB on, otherwise defaults to ELB subnets"
-  default     = []
+variable "subnet_tags" {
+  description = "A map of tags used to filter the subnets you want the ELB attached"
+  default     = {}
 }
 
 variable "proxy_protocol" {

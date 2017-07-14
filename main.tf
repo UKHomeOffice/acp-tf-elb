@@ -11,6 +11,10 @@
  *        tags            = {
  *          Role = "some_tag"
  *        }
+ *        # A series of tags applied to filter out the source subnets, by default Env and Role = elb-subnet is used
+ *        subnet_tags {
+ *          Role = "some_tag"
+ *        }
  *        cidr_access     = [ "1.0.0.1/32" ] # defaults to 0.0.0.0/0
  *        http_node_port  = "30204"
  *        https_node_port = "30205"
@@ -29,10 +33,7 @@ data "aws_vpc" "selected" {
 # Get a list of ELB subnets
 data "aws_subnet_ids" "selected" {
   vpc_id = "${data.aws_vpc.selected.id}"
-  tags {
-    Env  = "${var.environment}"
-    Role = "${var.elb_subnet_tag}"
-  }
+  tags   = "${merge(map("Role", var.elb_subnet_tag), map("Env", var.environment), var.tags)}"
 }
 
 # Get the host zone id
@@ -40,13 +41,13 @@ data "aws_route53_zone" "selected" {
   name = "${var.dns_zone}."
 }
 
-## Security Group for the ELB
+## Security Group for the ELB)
 resource "aws_security_group" "sg" {
   name        = "${var.environment}-${var.name}-elb"
   description = "The security group for ELB on service: ${var.name}, environment: ${var.environment}"
   vpc_id      = "${data.aws_vpc.selected.id}"
 
-  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment)))}"
+  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
 }
 
 # Ingress HTTP Port
@@ -93,7 +94,7 @@ resource "aws_security_group_rule" "out_https" {
 resource "aws_elb" "elb" {
   name            = "${var.environment}-${var.name}"
   internal        = "${var.internal}"
-  subnets         = [ "${length(var.subnets) > 0 ? var.subnets : data.aws_subnet_ids.selected.ids}" ]
+  subnets         = [ "${data.aws_subnet_ids.selected.ids}" ]
   security_groups = [ "${aws_security_group.sg.id}" ]
 
   listener {
@@ -123,7 +124,7 @@ resource "aws_elb" "elb" {
   cross_zone_load_balancing   = "${var.cross_zone}"
   idle_timeout                = "${var.idle_timeout}"
 
-  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", format("%s", var.environment)), map("KubernetesCluster", format("%s", var.environment)))}"
+  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
 }
 
 ## Enable Proxy Protocol in the nodes ports if required
