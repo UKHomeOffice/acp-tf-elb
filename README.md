@@ -31,8 +31,9 @@ Module usage:
 | connection_draining_timeout | The timeout for draining connections from the ELB | string | `120` | no |
 | cross_zone | Should the ELB create be cross zone load balancing | string | `true` | no |
 | dns_name | An optional hostname to add to the hosting zone, otherwise defaults to var.name | string | `` | no |
+| dns_type | The dns record type to use when adding the dns entry | string | `A` | no |
 | dns_zone | The AWS route53 domain name hosting the dns entry, i.e. example.com | string | - | yes |
-| elb_subnet_tag | The role tag applied to the subnets used for ELB, i.e. Role = elb-subnet | string | `elb-subnets` | no |
+| elb_role_tag | The role tag applied to the subnets used for ELB, i.e. Role = elb-subnet | string | `elb-subnets` | no |
 | environment | An envionment name for the ELB, i.e. prod, dev, ci etc and used to search for assets | string | - | yes |
 | health_check_interval | The interval between health checks | string | `30` | no |
 | health_check_port | The node port we should use on the health check, defaults to var.https_node_port | string | `` | no |
@@ -56,7 +57,7 @@ Module usage:
 | Name | Description |
 |------|-------------|
 | dns | The FQDN of the newly created ELB |
-| elb_dns_name | The internal dns name for the newly created ELB |
+| elb_dns_name | The name given to the ELB just created |
 | elb_id | The ID for the ELB which has been created |
 | security_group_id | The ID for the security used to protected the ELB |
 

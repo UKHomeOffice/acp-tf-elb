@@ -29,6 +29,11 @@ variable "dns_name" {
   default     =  ""
 }
 
+variable "dns_type" {
+  description = "The dns record type to use when adding the dns entry"
+  default     = "A"
+}
+
 variable "elb_role_tag" {
   description = "The role tag applied to the subnets used for ELB, i.e. Role = elb-subnet"
   default     = "elb-subnets"

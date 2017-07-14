@@ -138,7 +138,7 @@ resource "aws_proxy_protocol_policy" "proxy_protocol" {
 resource "aws_route53_record" "dns" {
   zone_id = "${data.aws_route53_zone.selected.zone_id}"
   name    = "${var.dns_name == "" ? var.name : var.dns_name}"
-  type    = "A"
+  type    = "${var.dns_type}"
 
   alias {
     name                   = "${aws_elb.elb.dns_name}"
