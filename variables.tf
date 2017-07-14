@@ -29,7 +29,7 @@ variable "dns_name" {
   default     =  ""
 }
 
-variable "elb_subnet_tag" {
+variable "elb_role_tag" {
   description = "The role tag applied to the subnets used for ELB, i.e. Role = elb-subnet"
   default     = "elb-subnets"
 }
