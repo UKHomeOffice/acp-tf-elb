@@ -5,6 +5,7 @@ Module usage:
 
        name            = "my_elb_name"
        environment     = "dev"            # by default both Name and Env is added to the tags
+       vpc_id          = "${module.infra.vpc_id}"
        dns_name        = "site"           # or defaults to var.name
        dns_zone        = "example.com"
        tags            = {
@@ -51,6 +52,7 @@ Module usage:
 | security_groups | An optional list of security groups added to the created ELB | string | `<list>` | no |
 | subnet_tags | A map of tags used to filter the subnets you want the ELB attached | string | `<map>` | no |
 | tags | A map of tags which will be added to the ELB cloud tags, by default Name, Env and KubernetesCluster is added | string | `<map>` | no |
+| vpc_id | The VPC ID where we are creating the ELB | string | - | yes |
 
 ## Outputs
 

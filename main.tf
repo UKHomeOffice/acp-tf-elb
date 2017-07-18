@@ -6,6 +6,7 @@
  *
  *        name            = "my_elb_name"
  *        environment     = "dev"            # by default both Name and Env is added to the tags
+ *        vpc_id          = "${module.infra.vpc_id}"
  *        dns_name        = "site"           # or defaults to var.name
  *        dns_zone        = "example.com"
  *        tags            = {
@@ -25,6 +26,7 @@
 
 # Get the VPC for this environment
 data "aws_vpc" "selected" {
+  id = "${var.vpc_id}"
   tags {
     Env  = "${var.environment}"
   }
