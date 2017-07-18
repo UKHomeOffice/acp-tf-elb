@@ -26,7 +26,6 @@
 
 # Get the VPC for this environment
 data "aws_vpc" "selected" {
-  id = "${var.vpc_id}"
   tags {
     Env  = "${var.environment}"
   }

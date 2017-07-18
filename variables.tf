@@ -11,10 +11,6 @@ variable "dns_zone" {
   description = "The AWS route53 domain name hosting the dns entry, i.e. example.com"
 }
 
-variable "vpc_id" {
-  description = "The VPC ID where we are creating the ELB"
-}
-
 variable "http_node_port" {
   description = "The http node port the ELB should be forwarding to"
 }
