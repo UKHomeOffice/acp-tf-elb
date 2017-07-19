@@ -32,6 +32,7 @@ data "aws_vpc" "selected" {
 
 # Get a list of ELB subnets
 data "aws_subnet_ids" "selected" {
+  vpc_id = "${data.aws_vpc.selected.id}"
   tags   = "${merge(map("Role", var.elb_role_tag), map("Env", var.environment), var.subnet_tags)}"
 }
 
