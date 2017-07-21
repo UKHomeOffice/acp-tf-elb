@@ -26,7 +26,7 @@
 # Get the VPC for this environment
 data "aws_vpc" "selected" {
   tags {
-    Env  = "${var.environment}"
+    Env = "${var.environment}"
   }
 }
 
@@ -52,63 +52,63 @@ resource "aws_security_group" "sg" {
 
 # Ingress HTTP Port
 resource "aws_security_group_rule" "in_http" {
-  type                     = "ingress"
-  security_group_id        = "${aws_security_group.sg.id}"
-  protocol                 = "tcp"
-  from_port                = "${var.http_port}"
-  to_port                  = "${var.http_port}"
-  cidr_blocks              = [ "${var.cidr_access}" ]
+  type              = "ingress"
+  security_group_id = "${aws_security_group.sg.id}"
+  protocol          = "tcp"
+  from_port         = "${var.http_port}"
+  to_port           = "${var.http_port}"
+  cidr_blocks       = ["${var.cidr_access}"]
 }
 
 # Ingress HTTPS Port
 resource "aws_security_group_rule" "in_https" {
-  type                     = "ingress"
-  security_group_id        = "${aws_security_group.sg.id}"
-  protocol                 = "tcp"
-  from_port                = "${var.https_port}"
-  to_port                  = "${var.https_port}"
-  cidr_blocks              = [ "${var.cidr_access}" ]
+  type              = "ingress"
+  security_group_id = "${aws_security_group.sg.id}"
+  protocol          = "tcp"
+  from_port         = "${var.https_port}"
+  to_port           = "${var.https_port}"
+  cidr_blocks       = ["${var.cidr_access}"]
 }
 
 ## Engress Rules HTTP Node Port
 resource "aws_security_group_rule" "out_http" {
-  type                     = "egress"
-  security_group_id        = "${aws_security_group.sg.id}"
-  protocol                 = "tcp"
-  from_port                = "${var.http_node_port}"
-  to_port                  = "${var.http_node_port}"
-  cidr_blocks              = [ "0.0.0.0/0" ]
+  type              = "egress"
+  security_group_id = "${aws_security_group.sg.id}"
+  protocol          = "tcp"
+  from_port         = "${var.http_node_port}"
+  to_port           = "${var.http_node_port}"
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 ## Engress Rules HTTPS Node Port
 resource "aws_security_group_rule" "out_https" {
-  type                     = "egress"
-  security_group_id        = "${aws_security_group.sg.id}"
-  protocol                 = "tcp"
-  from_port                = "${var.https_node_port}"
-  to_port                  = "${var.https_node_port}"
-  cidr_blocks              = [ "0.0.0.0/0" ]
+  type              = "egress"
+  security_group_id = "${aws_security_group.sg.id}"
+  protocol          = "tcp"
+  from_port         = "${var.https_node_port}"
+  to_port           = "${var.https_node_port}"
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 ## The ELB we are creating
 resource "aws_elb" "elb" {
   name            = "${var.environment}-${var.name}"
   internal        = "${var.internal}"
-  subnets         = [ "${data.aws_subnet_ids.selected.ids}" ]
-  security_groups = [ "${aws_security_group.sg.id}" ]
+  subnets         = ["${data.aws_subnet_ids.selected.ids}"]
+  security_groups = ["${aws_security_group.sg.id}"]
 
   listener {
-    instance_port       = "${var.http_node_port}"
-    instance_protocol   = "tcp"
-    lb_port             = "${var.http_port}"
-    lb_protocol         = "tcp"
+    instance_port     = "${var.http_node_port}"
+    instance_protocol = "tcp"
+    lb_port           = "${var.http_port}"
+    lb_protocol       = "tcp"
   }
 
   listener {
-    instance_port       = "${var.https_node_port}"
-    instance_protocol   = "tcp"
-    lb_port             = "${var.https_port}"
-    lb_protocol         = "tcp"
+    instance_port     = "${var.https_node_port}"
+    instance_protocol = "tcp"
+    lb_port           = "${var.https_port}"
+    lb_protocol       = "tcp"
   }
 
   health_check {
@@ -131,7 +131,7 @@ resource "aws_elb" "elb" {
 resource "aws_proxy_protocol_policy" "proxy_protocol" {
   count          = "${var.proxy_protocol ? 1 : 0}"
   load_balancer  = "${aws_elb.elb.name}"
-  instance_ports = [ "${var.http_node_port}", "${var.https_node_port}" ]
+  instance_ports = ["${var.http_node_port}", "${var.https_node_port}"]
 }
 
 # Create a DNS entry for this ELB
