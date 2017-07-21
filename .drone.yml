@@ -3,15 +3,6 @@ pipeline:
     image: quay.io/ukhomeofficedigital/acp-toolset:latest
     pull: true
     commands:
-    - terraform validate
-    - if terraform fmt | grep '\.tf'; then
-        echo "you have unformatted file, please run terraform fmt";
-        exit 1;
-      fi
-    - terraform-docs md . > docs.md
-    - if ! diff docs.md README.md >/dev/null 2>&1; then
-        echo "please update the README.md documentation";
-        exit 1;
-      fi
+    - /platform/scripts/tf-validate.sh
     when:
       event: pull_request
