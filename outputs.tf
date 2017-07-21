@@ -1,10 +1,9 @@
-
 output "dns" {
   description = "The FQDN of the newly created ELB"
   value       = "${var.dns_name}.${var.dns_zone}"
 }
 
-output "elb_id"            {
+output "elb_id" {
   description = "The ID for the ELB which has been created"
   value       = "${aws_elb.elb.id}"
 }

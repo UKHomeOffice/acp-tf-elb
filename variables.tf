@@ -1,4 +1,3 @@
-
 variable "name" {
   description = "A descriptive name for this ELB"
 }
@@ -26,7 +25,7 @@ variable "health_check_port" {
 
 variable "dns_name" {
   description = "An optional hostname to add to the hosting zone, otherwise defaults to var.name"
-  default     =  ""
+  default     = ""
 }
 
 variable "dns_type" {
@@ -56,7 +55,7 @@ variable "security_groups" {
 
 variable "cidr_access" {
   description = "A collection of network CIDR able to access this ELB, defaults to all"
-  default     = [ "0.0.0.0/0" ]
+  default     = ["0.0.0.0/0"]
 }
 
 variable "tags" {
