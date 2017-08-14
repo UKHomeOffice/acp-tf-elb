@@ -18,6 +18,11 @@ variable "https_node_port" {
   description = "The https node port the ELB should be forwarding to"
 }
 
+variable "attach_elb" {
+  description = "A series of filters used to find the autoscaling groups to attach ELB, Env is include by default"
+  default     = ""
+}
+
 variable "health_check_port" {
   description = "The node port we should use on the health check, defaults to var.https_node_port"
   default     = ""

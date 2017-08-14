@@ -134,7 +134,31 @@ resource "aws_proxy_protocol_policy" "proxy_protocol" {
   instance_ports = ["${var.http_node_port}", "${var.https_node_port}"]
 }
 
-# Create a DNS entry for this ELB
+## Find autoscaling group to attach
+data "aws_autoscaling_groups" "groups" {
+  count = "${length(var.attach_elb) > 0 ? 1 : 0}"
+
+  filter = [
+    {
+      name   = "key"
+      values = ["Name"]
+    },
+    {
+      name   = "value"
+      values = ["${var.attach_elb}"]
+    },
+  ]
+}
+
+### ELB Attachment is required
+resource "aws_autoscaling_attachment" "asg_attachment_bar" {
+  count = "${length(data.aws_autoscaling_groups.groups.*.names)}"
+
+  autoscaling_group_name = "${data.aws_autoscaling_groups.groups.names[count.index]}"
+  elb                    = "${aws_elb.elb.id}"
+}
+
+## Create a DNS entry for this ELB
 resource "aws_route53_record" "dns" {
   zone_id = "${data.aws_route53_zone.selected.zone_id}"
   name    = "${var.dns_name == "" ? var.name : var.dns_name}"
