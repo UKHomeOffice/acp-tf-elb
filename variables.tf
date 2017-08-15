@@ -18,9 +18,10 @@ variable "https_node_port" {
   description = "The https node port the ELB should be forwarding to"
 }
 
-variable "attach_elb" {
-  description = "A series of filters used to find the autoscaling groups to attach ELB, Env is include by default"
-  default     = ""
+variable "attach_elb_filters" {
+  description = "A list of filters used to find the autoscaling groups to attach ELB"
+  type        = "list"
+  default     = []
 }
 
 variable "health_check_port" {
