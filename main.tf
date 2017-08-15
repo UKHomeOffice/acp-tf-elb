@@ -136,18 +136,9 @@ resource "aws_proxy_protocol_policy" "proxy_protocol" {
 
 ## Find autoscaling group to attach
 data "aws_autoscaling_groups" "groups" {
-  count = "${length(var.attach_elb) > 0 ? 1 : 0}"
+  count = "${length(var.attach_elb_filters) > 0 ? 1 : 0}"
 
-  filter = [
-    {
-      name   = "key"
-      values = ["Name"]
-    },
-    {
-      name   = "value"
-      values = ["${var.attach_elb}"]
-    },
-  ]
+  filter = "${var.attach_elb_filters}"
 }
 
 ### ELB Attachment is required
