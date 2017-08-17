@@ -26,7 +26,7 @@ Module usage:
 
 | Name | Description | Default | Required |
 |------|-------------|:-----:|:-----:|
-| attach_elb_filters | A list of filters used to find the autoscaling groups to attach ELB | `<list>` | no |
+| attach_elb | A series of filters used to find the autoscaling groups to attach ELB, Env is include by default | `` | no |
 | cidr_access | A collection of network CIDR able to access this ELB, defaults to all | `<list>` | no |
 | connection_draining | Whether the ELB should drain connections | `true` | no |
 | connection_draining_timeout | The timeout for draining connections from the ELB | `120` | no |
