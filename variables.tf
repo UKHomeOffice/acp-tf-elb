@@ -19,7 +19,7 @@ variable "https_node_port" {
 }
 
 variable "attach_elb" {
-  description = "A series of filters used to find the autoscaling groups to attach ELB, Env is include by default"
+  description = "Autoscaling group name used to find the autoscaling group to attach ELB"
   default     = ""
 }
 
