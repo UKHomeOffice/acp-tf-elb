@@ -90,7 +90,7 @@ variable "connection_draining" {
 
 variable "connection_draining_timeout" {
   description = "The timeout for draining connections from the ELB"
-  default     = "120"
+  default     = "3600"
 }
 
 variable "cross_zone" {
@@ -99,8 +99,8 @@ variable "cross_zone" {
 }
 
 variable "idle_timeout" {
-  description = "The timeout applie to idle ELB connections"
-  default     = "120"
+  description = "The timeout applies to idle ELB connections"
+  default     = "4000"
 }
 
 variable "health_check_interval" {

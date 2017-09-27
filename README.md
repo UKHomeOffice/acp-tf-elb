@@ -29,7 +29,7 @@ Module usage:
 | attach_elb | Autoscaling group name used to find the autoscaling group to attach ELB | `` | no |
 | cidr_access | A collection of network CIDR able to access this ELB, defaults to all | `<list>` | no |
 | connection_draining | Whether the ELB should drain connections | `true` | no |
-| connection_draining_timeout | The timeout for draining connections from the ELB | `120` | no |
+| connection_draining_timeout | The timeout for draining connections from the ELB | `3600` | no |
 | cross_zone | Should the ELB create be cross zone load balancing | `true` | no |
 | dns_name | An optional hostname to add to the hosting zone, otherwise defaults to var.name | `` | no |
 | dns_type | The dns record type to use when adding the dns entry | `A` | no |
@@ -45,7 +45,7 @@ Module usage:
 | http_port | The ingress port running http | `80` | no |
 | https_node_port | The https node port the ELB should be forwarding to | - | yes |
 | https_port | the ingress port which is running https | `443` | no |
-| idle_timeout | The timeout applie to idle ELB connections | `120` | no |
+| idle_timeout | The timeout applies to idle ELB connections | `4000` | no |
 | internal | Indicates if the ELB should be an internal load balancer, defaults to true | `true` | no |
 | name | A descriptive name for this ELB | - | yes |
 | proxy_protocol | Indicates if proxy protocol should be enabled on node ports, defaults to false | `false` | no |
