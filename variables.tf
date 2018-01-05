@@ -122,3 +122,7 @@ variable "health_check_timeout" {
   description = "The timeout placed on the health checks"
   default     = "10"
 }
+
+variable "vpc_id" {
+  description = "The VPC ID to create the resources within"
+}

@@ -52,6 +52,7 @@ Module usage:
 | security_groups | An optional list of security groups added to the created ELB | `<list>` | no |
 | subnet_tags | A map of tags used to filter the subnets you want the ELB attached | `<map>` | no |
 | tags | A map of tags which will be added to the ELB cloud tags, by default Name, Env and KubernetesCluster is added | `<map>` | no |
+| vpc_id | The VPC ID to create the resources within | - | yes |
 
 ## Outputs
 
