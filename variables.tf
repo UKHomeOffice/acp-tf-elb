@@ -12,6 +12,7 @@ variable "dns_zone" {
 
 variable "listeners" {
   description = "A collection of maps which has port, node_port, protocol and cidr"
+  type        = "list"
 }
 
 variable "attach_elb" {
