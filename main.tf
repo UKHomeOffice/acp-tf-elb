@@ -30,7 +30,7 @@ data "aws_vpc" "selected" {
 
 # Get a list of ELB subnets
 data "aws_subnet_ids" "selected" {
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${data.aws_vpc.selected.id}"
   tags   = "${var.subnet_tags}"
 }
 
