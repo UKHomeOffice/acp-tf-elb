@@ -52,7 +52,7 @@ resource "aws_security_group_rule" "ingress" {
   protocol          = "${lookup(var.ingress[count.index], "protocol", "tcp")}"
   from_port         = "${lookup(var.ingress[count.index], "port")}"
   to_port           = "${lookup(var.ingress[count.index], "port")}"
-  cidr_blocks       = "${lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")}"
+  cidr_blocks       = [ "${lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")}" ]
 }
 
 ## Engress Rules
@@ -64,7 +64,7 @@ resource "aws_security_group_rule" "egress" {
   protocol          = "${lookup(var.egress[count.index], "protocol", "tcp")}"
   from_port         = "${lookup(var.egress[count.index], "port")}"
   to_port           = "${lookup(var.egress[count.index], "port")}"
-  cidr_blocks       = "${lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")}"
+  cidr_blocks       = [ "${lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")}" ]
 }
 
 ## The ELB we are creating
