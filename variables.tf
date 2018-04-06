@@ -66,6 +66,11 @@ variable "proxy_protocol" {
   default     = false
 }
 
+variable "proxy_protocol_ports" {
+  description = "If enabled a list of lb ports which should use proxy protocol"
+  default     = []
+}
+
 variable "security_groups" {
   description = "An optional list of security groups added to the created ELB"
   default     = []
@@ -122,5 +127,5 @@ variable "health_check_timeout" {
 }
 
 variable "vpc_id" {
-  description = "The VPC is we should to build the ELB into"
+  description = "The VPC is we should build the ELB into"
 }
