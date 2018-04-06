@@ -11,8 +11,25 @@ variable "dns_zone" {
 }
 
 variable "listeners" {
-  description = "A collection of maps which has port, node_port, protocol and cidr"
+  description = "A collection of elb listeners as defined by the provider"
   type        = "list"
+}
+
+variable "ingress" {
+  description = "A collection of maps which has port and optional protocol and cidr for ingress rules"
+  type        = "list"
+}
+
+variable "egress" {
+  description = "A collection of maps which has port and optional protocol and cidr for egress rules"
+
+  default = [
+    {
+      cidr     = "0.0.0.0/0"
+      port     = "-1"
+      protocol = "-1"
+    },
+  ]
 }
 
 variable "attach_elb" {
