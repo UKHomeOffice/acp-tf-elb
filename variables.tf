@@ -10,12 +10,26 @@ variable "dns_zone" {
   description = "The AWS route53 domain name hosting the dns entry, i.e. example.com"
 }
 
-variable "http_node_port" {
-  description = "The http node port the ELB should be forwarding to"
+variable "listeners" {
+  description = "A collection of elb listeners as defined by the provider"
+  type        = "list"
 }
 
-variable "https_node_port" {
-  description = "The https node port the ELB should be forwarding to"
+variable "ingress" {
+  description = "A collection of maps which has port and optional protocol and cidr for ingress rules"
+  type        = "list"
+}
+
+variable "egress" {
+  description = "A collection of maps which has port and optional protocol and cidr for egress rules"
+
+  default = [
+    {
+      cidr     = "0.0.0.0/0"
+      port     = "-1"
+      protocol = "-1"
+    },
+  ]
 }
 
 variable "attach_elb" {
@@ -24,8 +38,7 @@ variable "attach_elb" {
 }
 
 variable "health_check_port" {
-  description = "The node port we should use on the health check, defaults to var.https_node_port"
-  default     = ""
+  description = "The node port we should use on the health check"
 }
 
 variable "dns_name" {
@@ -53,29 +66,19 @@ variable "proxy_protocol" {
   default     = false
 }
 
+variable "proxy_protocol_ports" {
+  description = "If enabled a list of lb ports which should use proxy protocol"
+  default     = []
+}
+
 variable "security_groups" {
   description = "An optional list of security groups added to the created ELB"
   default     = []
 }
 
-variable "cidr_access" {
-  description = "A collection of network CIDR able to access this ELB, defaults to all"
-  default     = ["0.0.0.0/0"]
-}
-
 variable "tags" {
   description = "A map of tags which will be added to the ELB cloud tags, by default Name, Env and KubernetesCluster is added"
   default     = {}
-}
-
-variable "http_port" {
-  description = "The ingress port running http"
-  default     = "80"
-}
-
-variable "https_port" {
-  description = "the ingress port which is running https"
-  default     = "443"
 }
 
 variable "internal" {
@@ -124,5 +127,5 @@ variable "health_check_timeout" {
 }
 
 variable "vpc_id" {
-  description = "The VPC ID to create the resources within"
+  description = "The VPC is we should build the ELB into"
 }

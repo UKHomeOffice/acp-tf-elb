@@ -4,10 +4,43 @@
  *      module "fake_elb" {
  *        source         = "git::https://github.com/UKHomeOffice/acp-tf-elb?ref=master"
  *
- *        name            = "my_elb_name"
- *        environment     = "dev"            # by default both Name and Env is added to the tags
- *        dns_name        = "site"           # or defaults to var.name
- *        dns_zone        = "example.com"
+ *        name                 = "my_elb_name"
+ *        environment          = "dev"            # by default both Name and Env is added to the tags
+ *        dns_name             = "site"           # or defaults to var.name
+ *        dns_zone             = "example.com"
+ *        proxy_protocol       = true
+ *        proxy_protocol_ports = ["80", "443"]
+ *        vpc_id               = "vpc-32323232"
+ *
+ *        ingress = [
+ *          {
+ *            "cidr"     = "0.0.0.0/0" # optional as it defaults
+ *            "port"     = "80"
+ *            "protocol" = "tcp" # optional as it default
+ *          },
+ *          {
+ *            "port"     = "443"
+ *            "protocol" = "tcp"
+ *          },
+ *        ]
+ *
+ *        # egress = []  same as above, defaults to a permit all
+ *
+ *        listeners = [
+ *          {
+ *            instance_port     = "30100"
+ *            lb_port           = "80"
+ *            instance_protocol = "tcp"
+ *            lb_protocol       = "tcp"
+ *          },
+ *          {
+ *            instance_port     = "30101"
+ *            lb_port           = "443"
+ *            instance_protocol = "tcp"
+ *            lb_protocol       = "tcp"
+ *          },
+ *        ]
+ *
  *        tags            = {
  *          Role = "some_tag"
  *        }
@@ -15,17 +48,18 @@
  *        subnet_tags {
  *          Role = "some_tag"
  *        }
- *        cidr_access     = [ "1.0.0.1/32" ] # defaults to 0.0.0.0/0
- *        http_node_port  = "30204"
- *        https_node_port = "30205"
- *        proxy_protocol  = true
  *      }
  *
  */
 
+# Get the VPC for this environment
+data "aws_vpc" "selected" {
+  id = "${var.vpc_id}"
+}
+
 # Get a list of ELB subnets
 data "aws_subnet_ids" "selected" {
-  vpc_id = "${var.vpc_id}"
+  vpc_id = "${data.aws_vpc.selected.id}"
   tags   = "${var.subnet_tags}"
 }
 
@@ -34,97 +68,67 @@ data "aws_route53_zone" "selected" {
   name = "${var.dns_zone}."
 }
 
-## Security Group for the ELB)
+## Security Group for the ELB
 resource "aws_security_group" "sg" {
   name        = "${var.environment}-${var.name}-elb"
   description = "The security group for ELB on service: ${var.name}, environment: ${var.environment}"
-  vpc_id      = "${var.vpc_id}"
+  vpc_id      = "${data.aws_vpc.selected.id}"
 
   tags = "${merge(var.tags, map("Name", format("%s-%s-elb", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
 }
 
-# Ingress HTTP Port
-resource "aws_security_group_rule" "in_http" {
+## Ingress Rules
+resource "aws_security_group_rule" "ingress" {
+  count = "${length(var.ingress)}"
+
   type              = "ingress"
   security_group_id = "${aws_security_group.sg.id}"
-  protocol          = "tcp"
-  from_port         = "${var.http_port}"
-  to_port           = "${var.http_port}"
-  cidr_blocks       = ["${var.cidr_access}"]
+  protocol          = "${lookup(var.ingress[count.index], "protocol", "tcp")}"
+  from_port         = "${lookup(var.ingress[count.index], "port")}"
+  to_port           = "${lookup(var.ingress[count.index], "port")}"
+  cidr_blocks       = ["${lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")}"]
 }
 
-# Ingress HTTPS Port
-resource "aws_security_group_rule" "in_https" {
-  type              = "ingress"
-  security_group_id = "${aws_security_group.sg.id}"
-  protocol          = "tcp"
-  from_port         = "${var.https_port}"
-  to_port           = "${var.https_port}"
-  cidr_blocks       = ["${var.cidr_access}"]
-}
+## Engress Rules
+resource "aws_security_group_rule" "egress" {
+  count = "${length(var.egress)}"
 
-## Engress Rules HTTP Node Port
-resource "aws_security_group_rule" "out_http" {
   type              = "egress"
   security_group_id = "${aws_security_group.sg.id}"
-  protocol          = "tcp"
-  from_port         = "${var.http_node_port}"
-  to_port           = "${var.http_node_port}"
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
-## Engress Rules HTTPS Node Port
-resource "aws_security_group_rule" "out_https" {
-  type              = "egress"
-  security_group_id = "${aws_security_group.sg.id}"
-  protocol          = "tcp"
-  from_port         = "${var.https_node_port}"
-  to_port           = "${var.https_node_port}"
-  cidr_blocks       = ["0.0.0.0/0"]
+  protocol          = "${lookup(var.egress[count.index], "protocol", "tcp")}"
+  from_port         = "${lookup(var.egress[count.index], "port")}"
+  to_port           = "${lookup(var.egress[count.index], "port")}"
+  cidr_blocks       = ["${lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")}"]
 }
 
 ## The ELB we are creating
 resource "aws_elb" "elb" {
-  name            = "${var.environment}-${var.name}"
-  internal        = "${var.internal}"
-  subnets         = ["${data.aws_subnet_ids.selected.ids}"]
-  security_groups = ["${aws_security_group.sg.id}"]
-
-  listener {
-    instance_port     = "${var.http_node_port}"
-    instance_protocol = "tcp"
-    lb_port           = "${var.http_port}"
-    lb_protocol       = "tcp"
-  }
-
-  listener {
-    instance_port     = "${var.https_node_port}"
-    instance_protocol = "tcp"
-    lb_port           = "${var.https_port}"
-    lb_protocol       = "tcp"
-  }
+  name                        = "${var.environment}-${var.name}"
+  connection_draining         = "${var.connection_draining}"
+  connection_draining_timeout = "${var.connection_draining_timeout}"
+  cross_zone_load_balancing   = "${var.cross_zone}"
+  idle_timeout                = "${var.idle_timeout}"
+  internal                    = "${var.internal}"
+  listener                    = ["${var.listeners}"]
+  security_groups             = ["${aws_security_group.sg.id}"]
+  subnets                     = ["${data.aws_subnet_ids.selected.ids}"]
+  tags                        = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
 
   health_check {
     healthy_threshold   = "${var.health_check_threshold}"
     unhealthy_threshold = "${var.health_check_unhealthy}"
     timeout             = "${var.health_check_timeout}"
-    target              = "TCP:${var.health_check_port == "" ? var.https_node_port : var.health_check_port}"
+    target              = "TCP:${var.health_check_port}"
     interval            = "${var.health_check_interval}"
   }
-
-  connection_draining         = "${var.connection_draining}"
-  connection_draining_timeout = "${var.connection_draining_timeout}"
-  cross_zone_load_balancing   = "${var.cross_zone}"
-  idle_timeout                = "${var.idle_timeout}"
-
-  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
 }
 
 ## Enable Proxy Protocol in the nodes ports if required
 resource "aws_proxy_protocol_policy" "proxy_protocol" {
-  count          = "${var.proxy_protocol ? 1 : 0}"
+  count = "${var.proxy_protocol ? 1 : 0}"
+
+  instance_ports = ["${var.proxy_protocol_ports}"]
   load_balancer  = "${aws_elb.elb.name}"
-  instance_ports = ["${var.http_node_port}", "${var.https_node_port}"]
 }
 
 ## Find autoscaling group to attach
