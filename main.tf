@@ -78,6 +78,7 @@ resource "aws_elb" "elb" {
   listener                    = ["${var.listeners}"]
   security_groups             = ["${aws_security_group.sg.id}"]
   subnets                     = ["${data.aws_subnet_ids.selected.ids}"]
+  tags                        = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
 
   health_check {
     healthy_threshold   = "${var.health_check_threshold}"
@@ -86,15 +87,14 @@ resource "aws_elb" "elb" {
     target              = "TCP:${var.health_check_port}"
     interval            = "${var.health_check_interval}"
   }
-
-  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
 }
 
 ## Enable Proxy Protocol in the nodes ports if required
 resource "aws_proxy_protocol_policy" "proxy_protocol" {
-  count          = "${var.proxy_protocol ? 1 : 0}"
+  count = "${var.proxy_protocol ? 1 : 0}"
+
+  instance_ports = ["${matchkeys(values(var.listeners[count.index]), keys(var.listeners[count.index]), list("proxy_protocol"))}"]
   load_balancer  = "${aws_elb.elb.name}"
-  instance_ports = ["${var.http_node_port}", "${var.https_node_port}"]
 }
 
 ## Find autoscaling group to attach
