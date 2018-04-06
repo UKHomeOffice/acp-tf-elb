@@ -10,12 +10,8 @@ variable "dns_zone" {
   description = "The AWS route53 domain name hosting the dns entry, i.e. example.com"
 }
 
-variable "http_node_port" {
-  description = "The http node port the ELB should be forwarding to"
-}
-
-variable "https_node_port" {
-  description = "The https node port the ELB should be forwarding to"
+variable "listeners" {
+  description = "A collection of maps which has port, node_port, protocol and cidr"
 }
 
 variable "attach_elb" {
@@ -24,8 +20,7 @@ variable "attach_elb" {
 }
 
 variable "health_check_port" {
-  description = "The node port we should use on the health check, defaults to var.https_node_port"
-  default     = ""
+  description = "The node port we should use on the health check"
 }
 
 variable "dns_name" {
@@ -58,24 +53,9 @@ variable "security_groups" {
   default     = []
 }
 
-variable "cidr_access" {
-  description = "A collection of network CIDR able to access this ELB, defaults to all"
-  default     = ["0.0.0.0/0"]
-}
-
 variable "tags" {
   description = "A map of tags which will be added to the ELB cloud tags, by default Name, Env and KubernetesCluster is added"
   default     = {}
-}
-
-variable "http_port" {
-  description = "The ingress port running http"
-  default     = "80"
-}
-
-variable "https_port" {
-  description = "the ingress port which is running https"
-  default     = "443"
 }
 
 variable "internal" {

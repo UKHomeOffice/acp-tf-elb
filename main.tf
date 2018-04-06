@@ -34,7 +34,7 @@ data "aws_route53_zone" "selected" {
   name = "${var.dns_zone}."
 }
 
-## Security Group for the ELB)
+## Security Group for the ELB
 resource "aws_security_group" "sg" {
   name        = "${var.environment}-${var.name}-elb"
   description = "The security group for ELB on service: ${var.name}, environment: ${var.environment}"
@@ -43,79 +43,49 @@ resource "aws_security_group" "sg" {
   tags = "${merge(var.tags, map("Name", format("%s-%s-elb", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
 }
 
-# Ingress HTTP Port
-resource "aws_security_group_rule" "in_http" {
+## Ingress Rules
+resource "aws_security_group_rule" "ingress" {
+  count = "${length(var.listeners)}"
+
   type              = "ingress"
   security_group_id = "${aws_security_group.sg.id}"
-  protocol          = "tcp"
-  from_port         = "${var.http_port}"
-  to_port           = "${var.http_port}"
-  cidr_blocks       = ["${var.cidr_access}"]
+  protocol          = "${lookup(var.listeners[count.index], "protocol", "tcp")}"
+  from_port         = "${lookup(var.listeners[count.index], "port")}"
+  to_port           = "${lookup(var.listeners[count.index], "port")}"
+  cidr_blocks       = ["${lookup(var.listeners[count.index], "cidr", "0.0.0.0/0")}"]
 }
 
-# Ingress HTTPS Port
-resource "aws_security_group_rule" "in_https" {
-  type              = "ingress"
-  security_group_id = "${aws_security_group.sg.id}"
-  protocol          = "tcp"
-  from_port         = "${var.https_port}"
-  to_port           = "${var.https_port}"
-  cidr_blocks       = ["${var.cidr_access}"]
-}
+## Engress Rules
+resource "aws_security_group_rule" "egress" {
+  count = "${length(var.listeners)}"
 
-## Engress Rules HTTP Node Port
-resource "aws_security_group_rule" "out_http" {
   type              = "egress"
   security_group_id = "${aws_security_group.sg.id}"
-  protocol          = "tcp"
-  from_port         = "${var.http_node_port}"
-  to_port           = "${var.http_node_port}"
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
-## Engress Rules HTTPS Node Port
-resource "aws_security_group_rule" "out_https" {
-  type              = "egress"
-  security_group_id = "${aws_security_group.sg.id}"
-  protocol          = "tcp"
-  from_port         = "${var.https_node_port}"
-  to_port           = "${var.https_node_port}"
-  cidr_blocks       = ["0.0.0.0/0"]
+  protocol          = "${lookup(var.listeners[count.index], "protocol", "tcp")}"
+  from_port         = "${lookup(var.listeners[count.index], "node_port")}"
+  to_port           = "${lookup(var.listeners[count.index], "node_port")}"
+  cidr_blocks       = ["${lookup(var.listeners[count.index], "cidr", "0.0.0.0/0")}"]
 }
 
 ## The ELB we are creating
 resource "aws_elb" "elb" {
-  name            = "${var.environment}-${var.name}"
-  internal        = "${var.internal}"
-  subnets         = ["${data.aws_subnet_ids.selected.ids}"]
-  security_groups = ["${aws_security_group.sg.id}"]
-
-  listener {
-    instance_port     = "${var.http_node_port}"
-    instance_protocol = "tcp"
-    lb_port           = "${var.http_port}"
-    lb_protocol       = "tcp"
-  }
-
-  listener {
-    instance_port     = "${var.https_node_port}"
-    instance_protocol = "tcp"
-    lb_port           = "${var.https_port}"
-    lb_protocol       = "tcp"
-  }
+  name                        = "${var.environment}-${var.name}"
+  connection_draining         = "${var.connection_draining}"
+  connection_draining_timeout = "${var.connection_draining_timeout}"
+  cross_zone_load_balancing   = "${var.cross_zone}"
+  idle_timeout                = "${var.idle_timeout}"
+  internal                    = "${var.internal}"
+  listener                    = ["${var.listeners}"]
+  security_groups             = ["${aws_security_group.sg.id}"]
+  subnets                     = ["${data.aws_subnet_ids.selected.ids}"]
 
   health_check {
     healthy_threshold   = "${var.health_check_threshold}"
     unhealthy_threshold = "${var.health_check_unhealthy}"
     timeout             = "${var.health_check_timeout}"
-    target              = "TCP:${var.health_check_port == "" ? var.https_node_port : var.health_check_port}"
+    target              = "TCP:${var.health_check_port}"
     interval            = "${var.health_check_interval}"
   }
-
-  connection_draining         = "${var.connection_draining}"
-  connection_draining_timeout = "${var.connection_draining_timeout}"
-  cross_zone_load_balancing   = "${var.cross_zone}"
-  idle_timeout                = "${var.idle_timeout}"
 
   tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
 }
