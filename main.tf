@@ -23,6 +23,11 @@
  *
  */
 
+# Get the VPC for this environment
+data "aws_vpc" "selected" {
+  id = "${var.vpc_id}"
+}
+
 # Get a list of ELB subnets
 data "aws_subnet_ids" "selected" {
   vpc_id = "${var.vpc_id}"
@@ -38,7 +43,7 @@ data "aws_route53_zone" "selected" {
 resource "aws_security_group" "sg" {
   name        = "${var.environment}-${var.name}-elb"
   description = "The security group for ELB on service: ${var.name}, environment: ${var.environment}"
-  vpc_id      = "${var.vpc_id}"
+  vpc_id      = "${data.aws_vpc.selected.id}"
 
   tags = "${merge(var.tags, map("Name", format("%s-%s-elb", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
 }
@@ -52,7 +57,7 @@ resource "aws_security_group_rule" "ingress" {
   protocol          = "${lookup(var.ingress[count.index], "protocol", "tcp")}"
   from_port         = "${lookup(var.ingress[count.index], "port")}"
   to_port           = "${lookup(var.ingress[count.index], "port")}"
-  cidr_blocks       = [ "${lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")}" ]
+  cidr_blocks       = ["${lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")}"]
 }
 
 ## Engress Rules
@@ -64,7 +69,7 @@ resource "aws_security_group_rule" "egress" {
   protocol          = "${lookup(var.egress[count.index], "protocol", "tcp")}"
   from_port         = "${lookup(var.egress[count.index], "port")}"
   to_port           = "${lookup(var.egress[count.index], "port")}"
-  cidr_blocks       = [ "${lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")}" ]
+  cidr_blocks       = ["${lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")}"]
 }
 
 ## The ELB we are creating

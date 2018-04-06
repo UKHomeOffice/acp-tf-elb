@@ -122,5 +122,5 @@ variable "health_check_timeout" {
 }
 
 variable "vpc_id" {
-  description = "The VPC ID to create the resources within"
+  description = "The VPC is we should to build the ELB into"
 }
