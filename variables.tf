@@ -51,6 +51,11 @@ variable "dns_type" {
   default     = "A"
 }
 
+variable "enable_deletion_protection" {
+  description = "Enable deletion protection on ELB"
+  default     = false
+}
+
 variable "elb_role_tag" {
   description = "The role tag applied to the subnets used for ELB, i.e. Role = elb-subnet"
   default     = "elb-subnets"
