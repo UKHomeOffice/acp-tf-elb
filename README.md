@@ -87,6 +87,7 @@ Module usage:
 | Name | Description |
 |------|-------------|
 | dns |  |
+| elb_arn |  |
 | elb_dns_name |  |
 | elb_id |  |
 | security_group_id |  |

@@ -3,6 +3,11 @@ output "dns" {
   value       = "${var.dns_name}.${var.dns_zone}"
 }
 
+output "elb_arn" {
+  description = "The ARN for the ELB"
+  value       = "${aws_elb.elb.arn}"
+}
+
 output "elb_id" {
   description = "The ID for the ELB which has been created"
   value       = "${aws_elb.elb.id}"
