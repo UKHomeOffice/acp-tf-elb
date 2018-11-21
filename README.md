@@ -64,7 +64,7 @@ Module usage:
 | dns_zone | The AWS route53 domain name hosting the dns entry, i.e. example.com | - | yes |
 | egress | A collection of maps which has port and optional protocol and cidr for egress rules | `<list>` | no |
 | elb_role_tag | The role tag applied to the subnets used for ELB, i.e. Role = elb-subnet | `elb-subnets` | no |
-| environment | An envionment name for the ELB, i.e. prod, dev, ci etc and used to search for assets | - | yes |
+| environment | An environment name for the ELB, i.e. prod, dev, ci etc and used to search for assets | - | yes |
 | health_check_interval | The interval between health checks | `30` | no |
 | health_check_port | The node port we should use on the health check | - | yes |
 | health_check_threshold | The threshold for health checks marked healthy | `2` | no |
