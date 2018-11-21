@@ -107,6 +107,7 @@ resource "aws_elb" "elb" {
   connection_draining         = "${var.connection_draining}"
   connection_draining_timeout = "${var.connection_draining_timeout}"
   cross_zone_load_balancing   = "${var.cross_zone}"
+  enable_deletion_protection  = "${var.enable_deletion_protection}"
   idle_timeout                = "${var.idle_timeout}"
   internal                    = "${var.internal}"
   listener                    = ["${var.listeners}"]

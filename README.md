@@ -62,6 +62,7 @@ Module usage:
 | dns_name | An optional hostname to add to the hosting zone, otherwise defaults to var.name | `` | no |
 | dns_type | The dns record type to use when adding the dns entry | `A` | no |
 | dns_zone | The AWS route53 domain name hosting the dns entry, i.e. example.com | - | yes |
+| enable_deletion_protection | Whether deletion protection should be enabled on the ELB | `false` | no |
 | egress | A collection of maps which has port and optional protocol and cidr for egress rules | `<list>` | no |
 | elb_role_tag | The role tag applied to the subnets used for ELB, i.e. Role = elb-subnet | `elb-subnets` | no |
 | environment | An environment name for the ELB, i.e. prod, dev, ci etc and used to search for assets | - | yes |
@@ -90,4 +91,3 @@ Module usage:
 | elb_dns_name |  |
 | elb_id |  |
 | security_group_id |  |
-
