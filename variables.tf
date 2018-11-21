@@ -3,7 +3,7 @@ variable "name" {
 }
 
 variable "environment" {
-  description = "An envionment name for the ELB, i.e. prod, dev, ci etc and used to search for assets"
+  description = "An environment name for the ELB, i.e. prod, dev, ci etc and used to search for assets"
 }
 
 variable "dns_zone" {

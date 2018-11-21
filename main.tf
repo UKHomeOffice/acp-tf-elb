@@ -84,20 +84,20 @@ resource "aws_security_group_rule" "ingress" {
   type              = "ingress"
   security_group_id = "${aws_security_group.sg.id}"
   protocol          = "${lookup(var.ingress[count.index], "protocol", "tcp")}"
-  from_port         = "${lookup(var.ingress[count.index], "port")}"
-  to_port           = "${lookup(var.ingress[count.index], "port")}"
+  from_port         = "${lookup(var.ingress[count.index], "from_port", lookup(var.ingress[count.index], "port", ""))}"
+  to_port           = "${lookup(var.ingress[count.index], "to_port", lookup(var.ingress[count.index], "port", ""))}"
   cidr_blocks       = ["${lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")}"]
 }
 
-## Engress Rules
+## Egress Rules
 resource "aws_security_group_rule" "egress" {
   count = "${length(var.egress)}"
 
   type              = "egress"
   security_group_id = "${aws_security_group.sg.id}"
   protocol          = "${lookup(var.egress[count.index], "protocol", "tcp")}"
-  from_port         = "${lookup(var.egress[count.index], "port")}"
-  to_port           = "${lookup(var.egress[count.index], "port")}"
+  from_port         = "${lookup(var.egress[count.index], "from_port", lookup(var.egress[count.index], "port", ""))}"
+  to_port           = "${lookup(var.egress[count.index], "to_port", lookup(var.egress[count.index], "port", ""))}"
   cidr_blocks       = ["${lookup(var.egress[count.index], "cidr", "0.0.0.0/0")}"]
 }
 
