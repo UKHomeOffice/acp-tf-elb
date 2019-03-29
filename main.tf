@@ -131,7 +131,7 @@ resource "aws_proxy_protocol_policy" "proxy_protocol" {
   load_balancer  = "${aws_elb.elb.name}"
 }
 
-## Find autoscaling group to attach
+## Find autoscaling group(s) to attach
 data "aws_autoscaling_groups" "groups" {
   count = "${length(var.attach_elb) > 0 ? 1 : 0}"
 

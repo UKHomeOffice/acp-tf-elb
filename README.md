@@ -55,7 +55,7 @@ Module usage:
 
 | Name | Description | Default | Required |
 |------|-------------|:-----:|:-----:|
-| attach_elb | Autoscaling group name used to find the autoscaling group to attach ELB | `` | no |
+| attach_elb | List of autoscaling group names used to find the autoscaling group to attach ELB | `<list>` | no |
 | connection_draining | Whether the ELB should drain connections | `true` | no |
 | connection_draining_timeout | The timeout for draining connections from the ELB | `120` | no |
 | cross_zone | Should the ELB create be cross zone load balancing | `true` | no |

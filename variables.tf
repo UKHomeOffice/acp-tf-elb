@@ -33,8 +33,8 @@ variable "egress" {
 }
 
 variable "attach_elb" {
-  description = "Autoscaling group name used to find the autoscaling group to attach ELB"
-  default     = ""
+  description = "List of autoscaling group names used to find the autoscaling group to attach ELB"
+  default     = []
 }
 
 variable "health_check_port" {
