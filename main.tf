@@ -110,7 +110,7 @@ resource "aws_elb" "elb" {
   idle_timeout                = "${var.idle_timeout}"
   internal                    = "${var.internal}"
   listener                    = ["${var.listeners}"]
-  security_groups             = ["${aws_security_group.sg.id}"]
+  security_groups             = ["${concat(var.security_groups, list(aws_security_group.sg.id))}"]
   subnets                     = ["${data.aws_subnet_ids.selected.ids}"]
   tags                        = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
 
