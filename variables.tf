@@ -12,12 +12,12 @@ variable "dns_zone" {
 
 variable "listeners" {
   description = "A collection of elb listeners as defined by the provider"
-  type        = "list"
+  type        = list(map(string))
 }
 
 variable "ingress" {
   description = "A collection of maps which has port and optional protocol and cidr for ingress rules"
-  type        = "list"
+  type        = list(map(string))
 }
 
 variable "egress" {
