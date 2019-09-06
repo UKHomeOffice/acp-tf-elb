@@ -51,16 +51,19 @@
  *      }
  *
  */
+terraform {
+  required_version = ">= 0.12"
+}
 
 # Get the VPC for this environment
 data "aws_vpc" "selected" {
-  id = "${var.vpc_id}"
+  id = var.vpc_id
 }
 
 # Get a list of ELB subnets
 data "aws_subnet_ids" "selected" {
-  vpc_id = "${data.aws_vpc.selected.id}"
-  tags   = "${var.subnet_tags}"
+  vpc_id = data.aws_vpc.selected.id
+  tags   = var.subnet_tags
 }
 
 # Get the host zone id
@@ -72,98 +75,144 @@ data "aws_route53_zone" "selected" {
 resource "aws_security_group" "sg" {
   name        = "${var.environment}-${var.name}-elb"
   description = "The security group for ELB on service: ${var.name}, environment: ${var.environment}"
-  vpc_id      = "${data.aws_vpc.selected.id}"
+  vpc_id      = data.aws_vpc.selected.id
 
-  tags = "${merge(var.tags, map("Name", format("%s-%s-elb", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
+  tags = merge(
+    var.tags,
+    {
+      "Name" = format("%s-%s-elb", var.environment, var.name)
+    },
+    {
+      "Env" = var.environment
+    },
+    {
+      "KubernetesCluster" = var.environment
+    },
+  )
 }
 
 ## Ingress Rules
 resource "aws_security_group_rule" "ingress" {
-  count = "${length(var.ingress)}"
+  count = length(var.ingress)
 
   type              = "ingress"
-  security_group_id = "${aws_security_group.sg.id}"
-  protocol          = "${lookup(var.ingress[count.index], "protocol", "tcp")}"
-  from_port         = "${lookup(var.ingress[count.index], "from_port", lookup(var.ingress[count.index], "port", ""))}"
-  to_port           = "${lookup(var.ingress[count.index], "to_port", lookup(var.ingress[count.index], "port", ""))}"
-  cidr_blocks       = ["${lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")}"]
+  security_group_id = aws_security_group.sg.id
+  protocol          = lookup(var.ingress[count.index], "protocol", "tcp")
+  from_port = lookup(
+    var.ingress[count.index],
+    "from_port",
+    lookup(var.ingress[count.index], "port", ""),
+  )
+  to_port = lookup(
+    var.ingress[count.index],
+    "to_port",
+    lookup(var.ingress[count.index], "port", ""),
+  )
+  cidr_blocks = [lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")]
 }
 
 ## Egress Rules
 resource "aws_security_group_rule" "egress" {
-  count = "${length(var.egress)}"
+  count = length(var.egress)
 
   type              = "egress"
-  security_group_id = "${aws_security_group.sg.id}"
-  protocol          = "${lookup(var.egress[count.index], "protocol", "tcp")}"
-  from_port         = "${lookup(var.egress[count.index], "from_port", lookup(var.egress[count.index], "port", ""))}"
-  to_port           = "${lookup(var.egress[count.index], "to_port", lookup(var.egress[count.index], "port", ""))}"
-  cidr_blocks       = ["${lookup(var.egress[count.index], "cidr", "0.0.0.0/0")}"]
+  security_group_id = aws_security_group.sg.id
+  protocol          = lookup(var.egress[count.index], "protocol", "tcp")
+  from_port = lookup(
+    var.egress[count.index],
+    "from_port",
+    lookup(var.egress[count.index], "port", ""),
+  )
+  to_port = lookup(
+    var.egress[count.index],
+    "to_port",
+    lookup(var.egress[count.index], "port", ""),
+  )
+  cidr_blocks = [lookup(var.egress[count.index], "cidr", "0.0.0.0/0")]
 }
 
 ## The ELB we are creating
 resource "aws_elb" "elb" {
   name                        = "${var.environment}-${var.name}"
-  connection_draining         = "${var.connection_draining}"
-  connection_draining_timeout = "${var.connection_draining_timeout}"
-  cross_zone_load_balancing   = "${var.cross_zone}"
-  idle_timeout                = "${var.idle_timeout}"
-  internal                    = "${var.internal}"
-  listener                    = ["${var.listeners}"]
-  security_groups             = ["${concat(var.security_groups, list(aws_security_group.sg.id))}"]
-  subnets                     = ["${data.aws_subnet_ids.selected.ids}"]
-  tags                        = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", var.environment), map("KubernetesCluster", var.environment))}"
+  connection_draining         = var.connection_draining
+  connection_draining_timeout = var.connection_draining_timeout
+  cross_zone_load_balancing   = var.cross_zone
+  idle_timeout                = var.idle_timeout
+  internal                    = var.internal
+  dynamic "listener" {
+    for_each = var.listeners
+    content {
+      instance_port     = listener.value.instance_port
+      instance_protocol = listener.value.instance_protocol
+      lb_port           = listener.value.lb_port
+      lb_protocol       = listener.value.lb_protocol
+    }
+  }
+  security_groups = concat(var.security_groups, [aws_security_group.sg.id])
+  subnets         = data.aws_subnet_ids.selected.ids
+  tags = merge(
+    var.tags,
+    {
+      "Name" = format("%s-%s", var.environment, var.name)
+    },
+    {
+      "Env" = var.environment
+    },
+    {
+      "KubernetesCluster" = var.environment
+    },
+  )
 
   health_check {
-    healthy_threshold   = "${var.health_check_threshold}"
-    unhealthy_threshold = "${var.health_check_unhealthy}"
-    timeout             = "${var.health_check_timeout}"
+    healthy_threshold   = var.health_check_threshold
+    unhealthy_threshold = var.health_check_unhealthy
+    timeout             = var.health_check_timeout
     target              = "TCP:${var.health_check_port}"
-    interval            = "${var.health_check_interval}"
+    interval            = var.health_check_interval
   }
 }
 
 ## Enable Proxy Protocol in the nodes ports if required
 resource "aws_proxy_protocol_policy" "proxy_protocol" {
-  count = "${var.proxy_protocol ? 1 : 0}"
+  count = var.proxy_protocol ? 1 : 0
 
-  instance_ports = ["${var.proxy_protocol_ports}"]
-  load_balancer  = "${aws_elb.elb.name}"
+  instance_ports = var.proxy_protocol_ports
+  load_balancer  = aws_elb.elb.name
 }
 
 ## Find autoscaling group to attach
 data "aws_autoscaling_groups" "groups" {
-  count = "${length(var.attach_elb) > 0 ? 1 : 0}"
+  count = length(var.attach_elb) > 0 ? 1 : 0
 
-  filter = [
-    {
-      name   = "key"
-      values = ["Name"]
-    },
-    {
-      name   = "value"
-      values = ["${var.attach_elb}"]
-    },
-  ]
+  filter {
+    name   = "key"
+    values = ["Name"]
+  }
+  filter {
+    name   = "value"
+    values = [var.attach_elb] # this assumes "attach_elb" will not be a list, the count on this data object implies that it could be a list though
+  }
 }
 
 ### ELB Attachment is required
 resource "aws_autoscaling_attachment" "asg_attachment_bar" {
-  count = "${length(data.aws_autoscaling_groups.groups.*.names)}"
+  count = length(data.aws_autoscaling_groups.groups.*.names)
 
-  autoscaling_group_name = "${data.aws_autoscaling_groups.groups.names[count.index]}"
-  elb                    = "${aws_elb.elb.id}"
+  # data.aws_autoscaling_groups.groups returns a map within a list because of count being used
+  # e.g. [{names: [],values: []}] instead of {names: [],values: []}
+  autoscaling_group_name = data.aws_autoscaling_groups.groups.0.names[count.index]
+  elb                    = aws_elb.elb.id
 }
 
 ## Create a DNS entry for this ELB
 resource "aws_route53_record" "dns" {
-  zone_id = "${data.aws_route53_zone.selected.zone_id}"
-  name    = "${var.dns_name == "" ? var.name : var.dns_name}"
-  type    = "${var.dns_type}"
+  zone_id = data.aws_route53_zone.selected.zone_id
+  name    = var.dns_name == "" ? var.name : var.dns_name
+  type    = var.dns_type
 
   alias {
-    name                   = "${aws_elb.elb.dns_name}"
-    zone_id                = "${aws_elb.elb.zone_id}"
+    name                   = aws_elb.elb.dns_name
+    zone_id                = aws_elb.elb.zone_id
     evaluate_target_health = true
   }
 }
