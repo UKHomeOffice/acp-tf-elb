@@ -111,6 +111,25 @@ resource "aws_security_group_rule" "ingress" {
   cidr_blocks = [lookup(var.ingress[count.index], "cidr", "0.0.0.0/0")]
 }
 
+resource "aws_security_group_rule" "ipv6_ingress" {
+  count = length(var.ipv6_ingress)
+
+  type              = "ingress"
+  security_group_id = aws_security_group.sg.id
+  protocol          = lookup(var.ipv6_ingress[count.index], "protocol", "tcp")
+  from_port = lookup(
+    var.ipv6_ingress[count.index],
+    "from_port",
+    lookup(var.ipv6_ingress[count.index], "port", ""),
+  )
+  to_port = lookup(
+    var.ipv6_ingress[count.index],
+    "to_port",
+    lookup(var.ipv6_ingress[count.index], "port", ""),
+  )
+  ipv6_cidr_blocks = [lookup(var.ipv6_ingress[count.index], "cidr", "::/0")]
+}
+
 ## Egress Rules
 resource "aws_security_group_rule" "egress" {
   count = length(var.egress)
@@ -129,6 +148,25 @@ resource "aws_security_group_rule" "egress" {
     lookup(var.egress[count.index], "port", ""),
   )
   cidr_blocks = [lookup(var.egress[count.index], "cidr", "0.0.0.0/0")]
+}
+
+resource "aws_security_group_rule" "ipv6_egress" {
+  count = length(var.ipv6_egress)
+
+  type              = "egress"
+  security_group_id = aws_security_group.sg.id
+  protocol          = lookup(var.ipv6_egress[count.index], "protocol", "tcp")
+  from_port = lookup(
+    var.ipv6_egress[count.index],
+    "from_port",
+    lookup(var.ipv6_egress[count.index], "port", ""),
+  )
+  to_port = lookup(
+    var.ipv6_egress[count.index],
+    "to_port",
+    lookup(var.ipv6_egress[count.index], "port", ""),
+  )
+  ipv6_cidr_blocks = [lookup(var.ipv6_egress[count.index], "cidr", "::/0")]
 }
 
 ## The ELB we are creating
