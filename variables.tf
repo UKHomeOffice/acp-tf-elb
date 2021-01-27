@@ -20,12 +20,29 @@ variable "ingress" {
   type        = list(map(string))
 }
 
+variable "ipv6_ingress" {
+  description = "A collection of maps which has port and optional protocol and cidr for ipv6 ingress rules"
+  type        = list(map(string))
+}
+
 variable "egress" {
   description = "A collection of maps which has port and optional protocol and cidr for egress rules"
 
   default = [
     {
       cidr     = "0.0.0.0/0"
+      port     = "-1"
+      protocol = "-1"
+    },
+  ]
+}
+
+variable "ipv6_egress" {
+  description = "A collection of maps which has port and optional protocol and cidr for ipv6 egress rules"
+
+  default = [
+    {
+      cidr     = "::/0"
       port     = "-1"
       protocol = "-1"
     },

@@ -63,6 +63,7 @@ Module usage:
 | dns_type | The dns record type to use when adding the dns entry | `A` | no |
 | dns_zone | The AWS route53 domain name hosting the dns entry, i.e. example.com | - | yes |
 | egress | A collection of maps which has port and optional protocol and cidr for egress rules | `<list>` | no |
+| ipv6_egress | A collection of maps which has port and optional protocol and cidr for ipv6 egress rules | `<list>` | no |
 | elb_role_tag | The role tag applied to the subnets used for ELB, i.e. Role = elb-subnet | `elb-subnets` | no |
 | environment | An environment name for the ELB, i.e. prod, dev, ci etc and used to search for assets | - | yes |
 | health_check_interval | The interval between health checks | `30` | no |
@@ -72,6 +73,7 @@ Module usage:
 | health_check_unhealthy | The threshold of failed checks before marked unhealthy | `3` | no |
 | idle_timeout | The timeout applie to idle ELB connections | `120` | no |
 | ingress | A collection of maps which has port and optional protocol and cidr for ingress rules | - | yes |
+| ipv6_ingress | A collection of maps which has port and optional protocol and cidr for ipv6 ingress rules | - | yes |
 | internal | Indicates if the ELB should be an internal load balancer, defaults to true | `true` | no |
 | listeners | A collection of elb listeners as defined by the provider | - | yes |
 | name | A descriptive name for this ELB | - | yes |
