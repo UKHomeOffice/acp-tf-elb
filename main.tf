@@ -51,10 +51,6 @@
  *      }
  *
  */
-terraform {
-  required_version = ">= 0.12"
-}
-
 # Get the VPC for this environment
 data "aws_vpc" "selected" {
   id = var.vpc_id

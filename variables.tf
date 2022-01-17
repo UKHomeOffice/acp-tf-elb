@@ -27,7 +27,7 @@ variable "ipv6_ingress" {
 
 variable "egress" {
   description = "A collection of maps which has port and optional protocol and cidr for egress rules"
-
+  type        = list(map(string))
   default = [
     {
       cidr     = "0.0.0.0/0"
@@ -39,7 +39,7 @@ variable "egress" {
 
 variable "ipv6_egress" {
   description = "A collection of maps which has port and optional protocol and cidr for ipv6 egress rules"
-
+  type        = list(map(string))
   default = [
     {
       cidr     = "::/0"
@@ -75,6 +75,7 @@ variable "elb_role_tag" {
 
 variable "subnet_tags" {
   description = "A map of tags used to filter the subnets you want the ELB attached"
+  type        = map(string)
   default     = {}
 }
 
@@ -85,26 +86,31 @@ variable "proxy_protocol" {
 
 variable "proxy_protocol_ports" {
   description = "If enabled a list of lb ports which should use proxy protocol"
+  type        = list(string)
   default     = []
 }
 
 variable "security_groups" {
   description = "An optional list of security groups added to the created ELB"
+  type        = list(string)
   default     = []
 }
 
 variable "tags" {
   description = "A map of tags which will be added to the ELB cloud tags, by default Name, Env and KubernetesCluster is added"
+  type        = map(string)
   default     = {}
 }
 
 variable "internal" {
   description = "Indicates if the ELB should be an internal load balancer, defaults to true"
+  type        = bool
   default     = true
 }
 
 variable "connection_draining" {
   description = "Whether the ELB should drain connections"
+  type        = bool
   default     = true
 }
 
@@ -115,6 +121,7 @@ variable "connection_draining_timeout" {
 
 variable "cross_zone" {
   description = "Should the ELB create be cross zone load balancing"
+  type        = bool
   default     = true
 }
 
