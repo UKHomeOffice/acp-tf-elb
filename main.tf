@@ -205,7 +205,7 @@ resource "aws_autoscaling_attachment" "asg_attachment_bar" {
 }
 
 ## Create a DNS entry for this ELB
-resource "aws_route53_record" "dns" {
+/* resource "aws_route53_record" "dns" {
   zone_id = data.aws_route53_zone.selected.zone_id
   name    = var.dns_name == "" ? var.name : var.dns_name
   type    = var.dns_type
@@ -215,4 +215,4 @@ resource "aws_route53_record" "dns" {
     zone_id                = aws_elb.elb.zone_id
     evaluate_target_health = true
   }
-}
+} */
